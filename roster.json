@@ -1,0 +1,38 @@
+{
+  "owners": [
+    {
+      "name": "Team DD",
+      "players": [
+        { "name": "Aaron Judge", "mlbId": "592450", "stat": "HR", "position": "OF" },
+        { "name": "Shohei Ohtani", "mlbId": "660271", "stat": "HR", "position": "DH" },
+        { "name": "Juan Soto", "mlbId": "665742", "stat": "HR", "position": "OF" },
+        { "name": "Gunnar Henderson", "mlbId": "683002", "stat": "HR", "position": "SS" },
+        { "name": "Junior Caminero", "mlbId": "691406", "stat": "HR", "position": "3B" },
+        { "name": "Ketel Marte", "mlbId": "606466", "stat": "HR", "position": "2B" },
+        { "name": "Vladimir Guerrero Jr.", "mlbId": "665489", "stat": "HR", "position": "1B" },
+        { "name": "Rafael Devers", "mlbId": "646240", "stat": "HR", "position": "3B" },
+        { "name": "Agustin Ramirez", "mlbId": "682663", "stat": "HR", "position": "C" },
+        { "name": "Seiya Suzuki", "mlbId": "673548", "stat": "HR", "position": "OF" },
+        { "name": "Willi Castro", "mlbId": "650489", "stat": "HBP", "position": "UT" },
+        { "name": "Kyle Freeland", "mlbId": "607536", "stat": "HRA", "position": "SP" }
+      ]
+    },
+    {
+      "name": "Team AA",
+      "players": [
+        { "name": "Cal Raleigh", "mlbId": "663728", "stat": "HR", "position": "C" },
+        { "name": "Kyle Schwarber", "mlbId": "656941", "stat": "HR", "position": "DH" },
+        { "name": "Eugenio Suarez", "mlbId": "553993", "stat": "HR", "position": "3B" },
+        { "name": "Nick Kurtz", "mlbId": "701762", "stat": "HR", "position": "1B" },
+        { "name": "Riley Greene", "mlbId": "682985", "stat": "HR", "position": "OF" },
+        { "name": "Jo Adell", "mlbId": "666176", "stat": "HR", "position": "OF" },
+        { "name": "Ronald Acuna Jr.", "mlbId": "660670", "stat": "HR", "position": "OF" },
+        { "name": "Bobby Witt Jr.", "mlbId": "677951", "stat": "HR", "position": "SS" },
+        { "name": "James Wood", "mlbId": "695578", "stat": "HR", "position": "UT" },
+        { "name": "Brandon Lowe", "mlbId": "664040", "stat": "HR", "position": "2B" },
+        { "name": "Willson Contreras", "mlbId": "575929", "stat": "HBP", "position": "C" },
+        { "name": "Aaron Nola", "mlbId": "605400", "stat": "HRA", "position": "SP" }
+      ]
+    }
+  ]
+}
