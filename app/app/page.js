@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import roster from "../roster.json";
 
-const SEASON = 2025;
+const SEASON = 2026;
 const MONTHLY_BONUS = 10;
 
 const MONTHS = [
@@ -87,7 +87,7 @@ export default function Home() {
 
       // Fetch monthly bonuses for completed months
       const now = new Date();
-      const currentMonth = SEASON === 2025 ? 10 : now.getMonth() + 1;
+      const currentMonth = now.getMonth() + 1;
       const completedMonths = MONTHS.filter((m) => m.num < currentMonth);
       const bonuses = {};
 
