@@ -91,35 +91,62 @@ export default function Home() {
       const completedMonths = MONTHS.filter((m) => m.num < currentMonth);
       const bonuses = {};
 
-      for (const month of completedMonths) {
-        // Fetch monthly HRs for all rostered players
-        const monthlyHRs = await Promise.all(
-          allPlayers.map(async (player) => {
-            const hrs = await fetchPlayerMonthlyHR(player.mlbId, month.num);
-            return { ...player, monthlyHR: hrs };
-          })
+for (const month of completedMonths) {
+        let mlbMaxHR = 0;
+        let mlbLeaderIds = [];
+
+        try {
+          // Fetch top 50 HR hitters for the season to find monthly leaders
+          const leaderRes = await fetch(
+            `https://statsapi.mlb.com/api/v1/stats/leaders?leaderCategories=homeRuns&season=${SEASON}&leaderGameTypes=R&statGroup=hitting&limit=50`
+          );
+          const leaderData = await leaderRes.json();
+          const topPlayers = leaderData.leagueLeaders?.[0]?.leaders ?? [];
+
+          // Fetch monthly HRs for all top 50 players
+          const topMonthlyHRs = await Promise.all(
+            topPlayers.map(async (p) => {
+              const hrs = await fetchPlayerMonthlyHR(p.person.id, month.num);
+              return { mlbId: String(p.person.id), name: p.person.fullName, monthlyHR: hrs };
+            })
+          );
+
+          mlbMaxHR = Math.max(...topMonthlyHRs.map((p) => p.monthlyHR));
+          mlbLeaderIds = topMonthlyHRs.filter((p) => p.monthlyHR === mlbMaxHR);
+        } catch {
+          mlbMaxHR = 0;
+        }
+
+        if (mlbMaxHR === 0) continue;
+
+        // Total number of MLB leaders that month
+        const totalLeaders = mlbLeaderIds.length;
+        const pointsEach = MONTHLY_BONUS / totalLeaders;
+
+        // Check which MLB leaders are on our rosters
+        const rosteredLeaders = mlbLeaderIds.filter((leader) =>
+          allPlayers.some((p) => String(p.mlbId) === String(leader.mlbId))
         );
 
-        const maxHR = Math.max(...monthlyHRs.map((p) => p.monthlyHR));
-        if (maxHR === 0) continue;
-
-        const leaders = monthlyHRs.filter((p) => p.monthlyHR === maxHR);
-        const pointsEach = MONTHLY_BONUS / leaders.length;
-
-        bonuses[month.name] = { leaders, pointsEach, maxHR, teamPoints: {} };
+        bonuses[month.name] = {
+          leaders: mlbLeaderIds,
+          rosteredLeaders,
+          pointsEach,
+          maxHR: mlbMaxHR,
+          teamPoints: {},
+          void: rosteredLeaders.length === 0,
+        };
 
         roster.owners.forEach((owner) => {
-          const ownerLeaders = leaders.filter((l) =>
-            owner.players.some((p) => p.mlbId === l.mlbId)
+          const ownerLeaders = rosteredLeaders.filter((l) =>
+            owner.players.some((p) => String(p.mlbId) === String(l.mlbId))
           );
           if (ownerLeaders.length > 0) {
             bonuses[month.name].teamPoints[owner.name] =
               ownerLeaders.length * pointsEach;
           }
         });
-      }
-
-      setOwnerStats(playerResults);
+      }      setOwnerStats(playerResults);
       setMonthlyBonuses(bonuses);
       setLoading(false);
     }
