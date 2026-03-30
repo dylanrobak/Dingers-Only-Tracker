@@ -337,7 +337,7 @@ async function handleDeactivateSwap(ownerName) {
                     const isBenched = player.name === benchedName;
                     const isInactive = (isUT && !isUtActive) || isBenched;
                     const adjusted = getAdjustedValue(player, owner.name);
-                    const pts = player.stat === "HBP" ? adjusted * 0.5 : adjusted;
+                    const pts = player.stat === "HBP" ? adjusted * 0.5 : player.stat === "HRA" ? adjusted * 0.25 : adjusted;
 
                     return (
                       <tr
