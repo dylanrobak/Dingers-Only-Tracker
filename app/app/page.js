@@ -56,6 +56,7 @@ export default function Home() {
   const [swapHistory, setSwapHistory] = useState([]);
   const [benchedPlayer, setBenchedPlayer] = useState({});
   const [loading, setLoading] = useState(true);
+  const [hrLeaders, setHrLeaders] = useState([]);
   const [swapModal, setSwapModal] = useState(null);
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
@@ -149,6 +150,18 @@ export default function Home() {
               ownerLeaders.length * pointsEach;
           }
         });
+      }
+
+// Fetch MLB HR leaders
+      try {
+        const lRes = await fetch(
+          `https://statsapi.mlb.com/api/v1/stats/leaders?leaderCategories=homeRuns&season=${SEASON}&leaderGameTypes=R&statGroup=hitting&limit=10`
+        );
+        const lData = await lRes.json();
+        const leaders = lData.leagueLeaders?.[0]?.leaders ?? [];
+        setHrLeaders(leaders);
+      } catch {
+        setHrLeaders([]);
       }
 
       setOwnerStats(playerResults);
@@ -413,47 +426,103 @@ async function handleDeactivateSwap(ownerName) {
         })}
       </div>
 
-      {/* Monthly bonus breakdown */}
-      {Object.keys(monthlyBonuses).length > 0 && (
-        <div className="max-w-6xl mx-auto bg-gray-900 rounded-2xl p-6 shadow-lg">
-          <h2 className="text-xl font-bold text-yellow-400 mb-4">
-            🏆 Monthly HR Bonus
-          </h2>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-gray-400 border-b border-gray-700">
-                <th className="text-left pb-2">Month</th>
-                <th className="text-left pb-2">MLB Leader(s)</th>
-                <th className="text-left pb-2">HRs</th>
-                <th className="text-right pb-2">Bonus Awarded</th>
-              </tr>
-            </thead>
-            <tbody>
-              {Object.entries(monthlyBonuses).map(([month, data]) => (
-                <tr key={month} className="border-b border-gray-800">
-                  <td className="py-2 font-semibold">{month}</td>
-                  <td className="py-2 text-gray-300">
-                    {data.leaders.map((l) => l.name).join(", ")}
-                  </td>
-                  <td className="py-2 text-gray-400">{data.maxHR}</td>
-                  <td className="py-2 text-right">
-                    {Object.entries(data.teamPoints).length === 0 ? (
-                      <span className="text-gray-500">Void</span>
-                    ) : (
-                      Object.entries(data.teamPoints).map(([team, pts]) => (
-                        <div key={team} className="text-green-400">
-                          {team}: +{pts.toFixed(1)}
-                        </div>
-                      ))
-                    )}
-                  </td>
+{/* Bottom row — monthly bonus + HR leaders */}
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Monthly bonus breakdown */}
+        {Object.keys(monthlyBonuses).length > 0 && (
+          <div className="bg-gray-900 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-xl font-bold text-yellow-400 mb-4">
+              🏆 Monthly HR Bonus
+            </h2>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-gray-400 border-b border-gray-700">
+                  <th className="text-left pb-2">Month</th>
+                  <th className="text-left pb-2">MLB Leader(s)</th>
+                  <th className="text-left pb-2">HRs</th>
+                  <th className="text-right pb-2">Bonus Awarded</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {Object.entries(monthlyBonuses).map(([month, data]) => (
+                  <tr key={month} className="border-b border-gray-800">
+                    <td className="py-2 font-semibold">{month}</td>
+                    <td className="py-2 text-gray-300">
+                      {data.leaders.map((l) => l.name).join(", ")}
+                    </td>
+                    <td className="py-2 text-gray-400">{data.maxHR}</td>
+                    <td className="py-2 text-right">
+                      {Object.entries(data.teamPoints).length === 0 ? (
+                        <span className="text-gray-500">Void</span>
+                      ) : (
+                        Object.entries(data.teamPoints).map(([team, pts]) => (
+                          <div key={team} className="text-green-400">
+                            {team}: +{pts.toFixed(1)}
+                          </div>
+                        ))
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
 
+        {/* MLB HR Leaders */}
+        {hrLeaders.length > 0 && (
+          <div className="bg-gray-900 rounded-2xl p-6 shadow-lg">
+            <h2 className="text-xl font-bold text-yellow-400 mb-4">
+              💣 MLB HR Leaders
+            </h2>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-gray-400 border-b border-gray-700">
+                  <th className="text-left pb-2">Rank</th>
+                  <th className="text-left pb-2">Player</th>
+                  <th className="text-left pb-2">Team</th>
+                  <th className="text-right pb-2">HR</th>
+                </tr>
+              </thead>
+              <tbody>
+                {hrLeaders.map((leader, idx) => {
+                  const isRostered = allPlayers.some(
+                    (p) => String(p.mlbId) === String(leader.person.id)
+                  );
+                  const ownerOfPlayer = roster.owners.find((o) =>
+                    o.players.some((p) => String(p.mlbId) === String(leader.person.id))
+                  );
+                  return (
+                    <tr
+                      key={leader.person.id}
+                      className={`border-b border-gray-800 transition ${
+                        isRostered ? "bg-yellow-950 hover:bg-yellow-900" : "hover:bg-gray-800"
+                      }`}
+                    >
+                      <td className="py-2 text-gray-400">{idx + 1}</td>
+                      <td className="py-2">
+                        <div className="flex items-center gap-2">
+                          {leader.person.fullName}
+                          {isRostered && (
+                            <span className="text-xs px-2 py-0.5 rounded-full border border-yellow-400 text-yellow-400">
+                              {ownerOfPlayer?.name}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="py-2 text-gray-400">{leader.team?.name ?? "—"}</td>
+                      <td className="py-2 text-right font-bold text-yellow-300">
+                        {leader.value}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
       {/* Swap Modal */}
       {swapModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
