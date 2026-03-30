@@ -194,7 +194,7 @@ export default function Home() {
     const playerTotal = owner.players.reduce((sum, p) => {
       if (p.position === "UT" && !isUtActive) return sum;
       const adjusted = getAdjustedValue(p, owner.name);
-      const val = p.stat === "HBP" ? adjusted * 0.5 : adjusted;
+      const val = p.stat === "HBP" ? adjusted * 0.5 : p.stat === "HRA" ? adjusted * 0.25 : adjusted;
       return sum + val;
     }, 0);
 

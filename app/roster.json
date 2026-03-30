@@ -10,10 +10,10 @@
         { "name": "Junior Caminero", "mlbId": "691406", "stat": "HR", "position": "3B" },
         { "name": "Ketel Marte", "mlbId": "606466", "stat": "HR", "position": "2B" },
         { "name": "Vladimir Guerrero Jr.", "mlbId": "665489", "stat": "HR", "position": "1B" },
-        { "name": "Rafael Devers", "mlbId": "646240", "stat": "HR", "position": "3B" },
+        { "name": "Rafael Devers", "mlbId": "646240", "stat": "HR", "position": "UT" },
         { "name": "Agustin Ramirez", "mlbId": "682663", "stat": "HR", "position": "C" },
         { "name": "Seiya Suzuki", "mlbId": "673548", "stat": "HR", "position": "OF" },
-        { "name": "Willi Castro", "mlbId": "650489", "stat": "HBP", "position": "UT" },
+        { "name": "Willi Castro", "mlbId": "650489", "stat": "HBP", "position": "OF" },
         { "name": "Kyle Freeland", "mlbId": "607536", "stat": "HRA", "position": "SP" }
       ]
     },
