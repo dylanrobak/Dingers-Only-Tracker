@@ -8,12 +8,12 @@ const MONTHLY_BONUS = 10;
 const SWAP_PASSWORD = "dingers2026";
 
 const MONTHS = [
-  { name: "April", num: 4 },
-  { name: "May", num: 5 },
-  { name: "June", num: 6 },
-  { name: "July", num: 7 },
-  { name: "August", num: 8 },
-  { name: "September", num: 9 },
+  { name: "March/April", nums: [3, 4], endsAfter: 4 },
+  { name: "May", nums: [5], endsAfter: 5 },
+  { name: "June", nums: [6], endsAfter: 6 },
+  { name: "July", nums: [7], endsAfter: 7 },
+  { name: "August", nums: [8], endsAfter: 8 },
+  { name: "September", nums: [9], endsAfter: 9 },
 ];
 
 function getStatValue(stats, statType) {
@@ -36,15 +36,17 @@ async function fetchPlayerSeasonStats(mlbId, group) {
   }
 }
 
-async function fetchPlayerMonthlyHR(mlbId, month) {
+async function fetchPlayerMonthlyHR(mlbId, months) {
   try {
     const res = await fetch(
       `https://statsapi.mlb.com/api/v1/people/${mlbId}/stats?stats=byMonth&season=${SEASON}&group=hitting`
     );
     const data = await res.json();
     const splits = data.stats?.[0]?.splits ?? [];
-    const monthSplit = splits.find((s) => parseInt(s.month) === month);
-    return monthSplit?.stat?.homeRuns ?? 0;
+    return months.reduce((total, month) => {
+      const split = splits.find((s) => parseInt(s.month) === month);
+      return total + (split?.stat?.homeRuns ?? 0);
+    }, 0);
   } catch {
     return 0;
   }
@@ -96,7 +98,7 @@ export default function Home() {
 
       const now = new Date();
       const currentMonth = now.getMonth() + 1;
-      const completedMonths = MONTHS.filter((m) => m.num < currentMonth);
+      const completedMonths = MONTHS.filter((m) => m.endsAfter < currentMonth);
       const bonuses = {};
 
       for (const month of completedMonths) {
@@ -112,7 +114,7 @@ export default function Home() {
 
           const topMonthlyHRs = await Promise.all(
             topPlayers.map(async (p) => {
-              const hrs = await fetchPlayerMonthlyHR(p.person.id, month.num);
+              const hrs = await fetchPlayerMonthlyHR(p.person.id, month.nums);
               return { mlbId: String(p.person.id), name: p.person.fullName, monthlyHR: hrs };
             })
           );
